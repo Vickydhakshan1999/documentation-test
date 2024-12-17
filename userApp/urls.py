@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import  create_group, create_user_details, create_user_with_token, delete_user_with_token, export_users_to_excel, get_all_users_with_groups, list_groups, login, retrieve_group, update_group, delete_group
+from .views import  DynamicSearchView, create_group, create_user_details, create_user_with_token, delete_user_with_token, export_users_to_excel, get_all_users_with_groups, list_groups, login, retrieve_group, update_group, delete_group
 from .views import PlatformUser, PlatformUserCustomField
 from . import views
 
@@ -45,6 +45,8 @@ urlpatterns = [
     path('export_users/', export_users_to_excel, name='export_users_to_excel'),
     
     path('all-users-with-groups/', get_all_users_with_groups, name='get_all_users_with_groups'),
+
+    path('search/', DynamicSearchView.as_view(), name='dynamic-search'),
 ]
 
 urlpatterns += router.urls

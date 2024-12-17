@@ -780,3 +780,50 @@ def get_all_users_with_groups(request):
     return Response(user_data)
 
 
+#  this code is for ElasticSearch
+
+from elasticsearch_dsl.query import Q
+from .documents import UserDocument
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.parsers import FormParser, MultiPartParser
+
+class DynamicSearchView(APIView):
+    parser_classes = [FormParser, MultiPartParser]
+
+    def post(self, request, *args, **kwargs):
+        search_field = request.data.get('field', None)
+        search_value = request.data.get('value', None)
+
+        if not search_field or not search_value:
+            return Response({"error": "Please provide 'field' and 'value' in the request."}, status=400)
+
+        valid_fields = ['name', 'email', 'phone_no', 'id']
+        if search_field not in valid_fields:
+            return Response({"error": f"Invalid field '{search_field}'."}, status=400)
+        
+        print(search_value,"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+        
+        # For autocomplete, use 'match_phrase_prefix' query
+        if search_field in ['name', 'email', 'phone_no']:
+            # user_query = Q("match_phrase_prefix", **{search_field: search_value})
+            user_query = Q("wildcard", **{search_field: f"*{search_value}*"})
+
+        elif search_field == 'id':
+            # Exact match for IDs
+            user_query = Q("term", **{search_field: search_value})
+        
+        # Perform the search and fetch results
+        user_results = UserDocument.search().query(user_query)
+        
+        # Convert results to a list of dictionaries
+        combined_results = {
+            'users': [hit.to_dict() for hit in user_results]
+        }
+
+        # Handle no results
+        if not combined_results['users']:
+            return Response({"message": "No users found for the given input."}, status=404)
+
+        return Response(combined_results)
+    

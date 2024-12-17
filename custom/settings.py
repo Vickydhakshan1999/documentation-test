@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django_filters',
     'django_access_point',
     'userApp',
-    'charts'
+    'charts',
+    'django_elasticsearch_dsl'
     
 ]
 
@@ -83,7 +84,6 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            # Add the app's templates directory
             BASE_DIR / 'charts/templates',
         ],
         'APP_DIRS': True,  # Ensure Django looks inside each app's templates directory
@@ -164,4 +164,12 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://localhost:9200',
+    },
+}
+
 
